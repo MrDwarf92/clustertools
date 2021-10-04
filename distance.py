@@ -25,33 +25,10 @@ def timer(func):
     return wrapper_timer
 
 
-
 def calculate_distance_3D(p1, p2):
     distance = ((p1[0]-p2[0])**2+(p1[1]-p2[1])**2+(p1[2]-p2[2])**2)**0.5
     return distance
 
-
-def calculate_mean_2(vertices_list,point_list,volume_list,is_surface_to_surface):
-    sum = 0
-    subtractor = 0
-    distances = np.zeros(len(vertices_list))
-    counter = 0
-    for x in vertices_list:
-        subtractor = 0
-        p1 = point_list[x[0]]
-        p2 = point_list[x[1]]
-
-        #When surface to surface is selected (True)
-        #calculate the radius of both spheres and subtract them from the distance!
-        if is_surface_to_surface:
-            subtractor = (3*volume_list[x[0]]/(4*math.pi))**(1/3)+(3*volume_list[x[1]]/(4*math.pi))**(1/3)
-
-        distances[counter]=calculate_distance_3D(p1,p2)-subtractor
-        counter = counter +1
-
-    mean_distance = np.median(distances)
-    stdev = np.std(distances)
-    return mean_distance, stdev
 
 def calculate_distances(distance_list,volumes_df,is_surface_to_surface):
     #distance list contains: distance, p1, p2
@@ -125,18 +102,16 @@ def plot_figure(distance_list, points, points_all, volumes_all):
         y = [points[p1,1],points[p2,1]]
         z = [points[p1,2],points[p2,2]]
         ax.plot(x,y,z,color='blue',linestyle='-')
+    plt.show()
 
 def calculate_radius(volume):
     return (volume*(3/4)*(1/3.1415))**(1/3)
 
 @timer
-def calculate_mean_distance(filepath):
-    #First 10 rows are just metadata
-    #The first column of the CSV file must be renamed to "Cluster", empty columns can be removed
-    cluster_data = pd.read_csv(filepath,delimiter=',',skip_blank_lines=False,header=10)
-
+def calculate_mean_distance(all_data):
+    
     #We want to drop the first line (matrix)
-    cluster_data.drop(index=0,inplace=True)
+    cluster_data=all_data.drop(index=0)
     cluster_ss = cluster_data [['Cluster','Center_x (nm) Ranged\'','Center_y (nm) Ranged\'','Center_z (nm) Ranged\'','V_Extent (nm^3) Total\'']]
     #Transforming Pandas Data to point list
     points = cluster_ss.values[:,1:4]
@@ -162,13 +137,15 @@ def calculate_mean_distance(filepath):
     df_distance_list, distances_new = calculate_distances(distance_list,volumes_df,True)
     
     plot_figure(df_distance_list, points, points_all, volumes_all.astype(int))
-    print(f"Mean distance of precipitates (surface-to-surface); {np.mean(distances_new):.4f}; {np.std(distances_new):.4f}; {(np.std(distances_new)/np.sqrt(np.size(distances_new))):.4f}")
+    output = "<table border=0 width=auto>"
+    output = output+"<tr><td></td><td>Mean</td><td>Std.Dev.</td><td>Std.Err.</td></tr>"
+    output= output + f"<tr><td>Mean distance of precipitates (surface-to-surface)</td><td>{np.mean(distances_new):.4f}</td><td>{np.std(distances_new):.4f}</td><td>{(np.std(distances_new)/np.sqrt(np.size(distances_new))):.4f}</td></tr>"
     d_new = distances_new
         #mean_distance, stdev = calculate_mean(vertices,points,volumes,False)
     df_distance_list, distances_new = calculate_distances(distance_list,volumes_df,False)
-    print(f"Mean distance of precipitates (centers); {np.mean(distances_new):.4f}; {np.std(distances_new):.4f}; {(np.std(distances_new)/np.sqrt(np.size(distances_new))):.4f}")
-    
-    return d_new
+    output= output +f"<tr><td>Mean distance of precipitates (centers)</td><td>{np.mean(distances_new):.4f}</td><td>{np.std(distances_new):.4f}</td><td>{(np.std(distances_new)/np.sqrt(np.size(distances_new))):.4f}</td></tr>"
+    output = output + "</table>"
+    return output
 
 
 def plot_dist_statistics(distances,bins):
