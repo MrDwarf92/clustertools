@@ -44,8 +44,11 @@ class ClusterAnalysis:
         vtotal=(m_ions*self.m_volume+p_ions*self.p_volume)/0.37
         Nv = N_clusters/vtotal
         eq_dia = self.cluster_ss['d_eq'].mean()
+        eq_dia_std = self.cluster_ss['d_eq'].std()
         cyl_dia = self.cluster_ss['cyl_dia'].mean()
+        cyl_dia_std = self.cluster_ss['cyl_dia'].std()
         mean_length = self.cluster_ss['e_length'].mean()
+        mean_length_std = self.cluster_ss['e_length'].std()
         #output = ""
 
         ##OUTPUT
@@ -62,14 +65,15 @@ class ClusterAnalysis:
         ##OUTPUT HTML
         output='Cluster statistics:'
         output=output+"<table border=0 width=auto>"
-        output=output+"<tr><td>"+'Total measurement volume (nm^3): </td><td>'+str(vtotal)+"</tr>"
-        output=output+"<tr><td>"+'Number of ions </td><td>'+str(p_ions)+"</tr>"
-        output=output+"<tr><td>"+'Number of clusters</td><td>'+str(N_clusters)+"</tr>"
-        output=output+"<tr><td>"+'Volume fraction of clusters (%)</td><td>' + str(round(Fv*100,2))+"</tr>"
-        output=output+"<tr><td>"+'Number density (m^-3)</td><td>' + np.format_float_scientific((Nv*1e27),precision=2)+"</tr>"
-        output=output+"<tr><td>"+'Equivalent spherical diameter (nm)</td><td>' + str(round(eq_dia,2))+"</tr>"
-        output=output+"<tr><td>"+'Mean length (nm)</td><td>' + str(round(mean_length,2))+"</tr>"
-        output=output+"<tr><td>"+'Cylindrical diameter (nm)</td><td>' + str(round(cyl_dia,2))+"</tr>"
+        output=output+"<tr><td>"+"Quantity</td><td> Value </td><td>Std. Dev.</td></tr>"
+        output=output+"<tr><td>"+'Total measurement volume (nm^3): </td><td>'+str(vtotal)+"</td><td></td></tr>"
+        output=output+"<tr><td>"+'Number of ions </td><td>'+str(p_ions)+"</td><td></td></tr>"
+        output=output+"<tr><td>"+'Number of clusters</td><td>'+str(N_clusters)+"</td><td></td></tr>"
+        output=output+"<tr><td>"+'Volume fraction of clusters (%)</td><td>' + str(round(Fv*100,2))+"</td><td></td></tr>"
+        output=output+"<tr><td>"+'Number density (m^-3)</td><td>' + np.format_float_scientific((Nv*1e27),precision=2)+"</td><td></td></tr>"
+        output=output+"<tr><td>"+'Equivalent spherical diameter (nm)</td><td>' + str(round(eq_dia,2))+"</td><td>"+str(round(eq_dia_std,2))+"</td></tr>"
+        output=output+"<tr><td>"+'Mean length (nm)</td><td>' + str(round(mean_length,2))+"</td><td>"+str(round(mean_length_std,2))+"</td></tr>"
+        output=output+"<tr><td>"+'Cylindrical diameter (nm)</td><td>' + str(round(cyl_dia,2))+"</td><td>"+str(round(cyl_dia_std,2))+"</td></tr>"
         output=output+"</table>"
         return output
 
